@@ -46,11 +46,17 @@ RUN wine C:/strawberry/perl/bin/perl.exe -e "exit 0" && \
     wine cmd.exe /c MakeREFORGED.bat && \
     wine cmd.exe /c MakeTFT.bat && \
     wine cmd.exe /c MakeROC.bat && \
+    wine cmd.exe /c MakeOptREFORGED.bat 1 && \
+    wine cmd.exe /c MakeOptTFT.bat 1 && \
+    wine cmd.exe /c MakeOptROC.bat 1 && \
     for version in REFORGED TFT ROC; do \
         test -s "Scripts/$version/common.ai" && \
         test -s "Scripts/$version/Blizzard.j" && \
         test -s "Scripts/$version/vsai/Blizzard.j" && \
-        test -n "$(find "Scripts/$version" -maxdepth 1 -name '*.ai' -print -quit)"; \
+        test -s "Scripts/OPT$version/common.ai" && \
+        test -s "Scripts/OPT$version/Blizzard.j" && \
+        test -s "Scripts/OPT$version/vsai/Blizzard.j" && \
+        test -n "$(find "Scripts/OPT$version" -maxdepth 1 -name '*.ai' -print -quit)"; \
     done && \
     cp -a Scripts /app/AMAI/ && \
     rm -rf /tmp/amai-build

@@ -84,7 +84,7 @@ app.post(
       const args = [
         "C:/strawberry/perl/bin/perl.exe",
         "InstallToDir.pl",
-        version,
+        `OPT${version}`,
         wineJobDir,
         commanderMode,
       ];
