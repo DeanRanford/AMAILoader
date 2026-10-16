@@ -1,0 +1,3 @@
+[submodule "AMAI"]
+	path = AMAI
+	url = https://github.com/SMUnlimited/AMAI
