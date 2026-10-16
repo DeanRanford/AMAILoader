@@ -75,12 +75,15 @@
         enctype="multipart/form-data"
       >
         <div class="form-group">
-          <label for="mapFile">Select Warcraft III Map (.w3m / .w3x):</label>
+          <label for="mapFiles">
+            Select one or more Warcraft III maps (.w3m / .w3x):
+          </label>
           <input
             type="file"
-            id="mapFile"
-            name="mapFile"
+            id="mapFiles"
+            name="mapFiles"
             accept=".w3m,.w3x"
+            multiple
             required
           />
         </div>
@@ -105,9 +108,14 @@
           </select>
         </div>
 
-        <button type="submit" id="submitBtn">Install AMAI & Download</button>
+        <button type="submit" id="submitBtn">
+          Install AMAI & Download
+        </button>
       </form>
-      <div id="loading">Processing map via Wine/AMAI... Please wait.</div>
+      <div id="loading">
+        Processing map(s) via Wine/AMAI... Please wait. Multiple maps download
+        as a ZIP file.
+      </div>
     </div>
 
     <script>
