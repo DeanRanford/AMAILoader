@@ -15,39 +15,52 @@ app.post("/process-map", upload.single("mapFile"), (req, res) => {
   }
 
   const originalPath = req.file.path;
-  const extension = path.extname(req.file.originalname) || ".w3m";
-  const processedFileName = `amai_${Date.now()}${extension}`;
-  const targetPath = path.join(__dirname, "uploads", processedFileName);
 
-  // Give the uploaded map file its correct extension (.w3m or .w3x)
+  // Create an isolated temporary directory for this request
+  const jobDir = path.join(__dirname, "uploads", `job_${Date.now()}`);
+  fs.mkdirSync(jobDir, { recursive: true });
+
+  const targetPath = path.join(jobDir, req.file.originalname);
   fs.renameSync(originalPath, targetPath);
 
   const version = req.body.version || "REFORGED"; // Options: ROC, TFT, REFORGED
   const commanderMode = req.body.commander || "1"; // 0: No commander, 1: Commander, 2: VS Vanilla
 
-  const amaiBatPath = path.join(
-    __dirname,
-    "AMAI",
-    `Install${version}ToMap.bat`,
-  );
+  const amaiDir = path.join(__dirname, "AMAI");
+  const batName = `Install${version}ToMap.bat`;
 
-  // Execute via Wine inside the container environment
-  const command = `wine cmd.exe /c "${amaiBatPath}" "${targetPath}" ${commanderMode}`;
+  // Convert the target file path to a Windows-style path under Wine (e.g. Z:\app\uploads\job_...\map.w3m)
+  const wineTargetPath = `Z:${targetPath.replace(/\//g, "\\")}`;
 
-  console.log(`Executing command: ${command}`);
+  // Execute the batch script directly using cmd.exe under Wine
+  const command = `wine cmd.exe /c "${batName}" "${wineTargetPath}" ${commanderMode}`;
 
-  exec(command, (error, stdout, stderr) => {
+  console.log(`Executing Wine Batch Script: ${command} in ${amaiDir}`);
+
+  exec(command, { cwd: amaiDir }, (error, stdout, stderr) => {
     if (error) {
       console.error(`Execution error: ${error.message}`);
       console.error(`stderr: ${stderr}`);
+      fs.rmSync(jobDir, { recursive: true, force: true });
       return res
         .status(500)
-        .send(`Failed to process map via AMAI: ${stderr || error.message}`);
+        .send(
+          `Failed to process map via Wine batch: ${stderr || error.message}`,
+        );
+    }
+
+    if (!fs.existsSync(targetPath)) {
+      fs.rmSync(jobDir, { recursive: true, force: true });
+      return res
+        .status(500)
+        .send(
+          "AMAI execution finished, but the modified map file was missing.",
+        );
     }
 
     res.download(targetPath, `AMAI_${req.file.originalname}`, (err) => {
       try {
-        if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath);
+        fs.rmSync(jobDir, { recursive: true, force: true });
       } catch (cleanupErr) {
         console.error("Cleanup error:", cleanupErr);
       }
@@ -57,5 +70,5 @@ app.post("/process-map", upload.single("mapFile"), (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`AMAI Docker Web Frontend running on port ${PORT}`);
+  console.log(`AMAI Wine Web Frontend running on port ${PORT}`);
 });
