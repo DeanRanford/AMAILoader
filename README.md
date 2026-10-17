@@ -1,5 +1,17 @@
 # AMAILoader
 
+Wraps up AMAI into a Docker container to easily run in codepaces
+
+0. Open as a codespace
+1. docker build --no-cache -t amai-web-app .
+2. docker run -d --rm -p 3000:3000 --name amai-container amai-web-app
+3. Set the forwarded port to public in the vscode web view.
+4. Access the URL.
+
+5. Alternatively look a the publishfolder.ps1 to mass submit a folder
+
+---
+
 AMAILoader runs AMAI's map installer in Wine and provides a web interface for
 installing AMAI on Warcraft III maps. The installer code and files in `AMAI/`
 are used as provided; the Docker build compiles the required AMAI script
