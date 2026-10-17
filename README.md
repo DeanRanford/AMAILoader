@@ -3,12 +3,14 @@
 Wraps up AMAI into a Docker container to easily run in codepaces
 
 0. Open as a codespace
-1. docker build --no-cache -t amai-web-app .
-2. docker run -d --rm -p 3000:3000 --name amai-container amai-web-app
-3. Set the forwarded port to public in the vscode web view.
-4. Access the URL.
+1. Update the git AMAI submodule to the latest version if needed (and rebuild the docker image)
+2. docker build --no-cache -t amai-web-app .
+3. docker run -d --rm -p 3000:3000 --name amai-container amai-web-app
+4. Set the forwarded port to public in the vscode web view.
+5. Access the URL.
 
-5. Alternatively look a the publishfolder.ps1 to mass submit a folder
+6. Alternatively look a the publishfolder.ps1 to mass submit a folder
+
 
 ---
 
