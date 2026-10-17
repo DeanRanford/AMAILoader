@@ -1,6 +1,6 @@
 # AMAILoader
 
-Wraps up AMAI into a Docker container to easily run in codepaces
+Wraps up AMAI into a Docker container to easily run in codepaces. Exposes a frontend to upload 1 or more maps (not too many at a time) and deploy the amai scripts into the maps
 
 0. Open as a codespace
 1. Update the git AMAI submodule to the latest version if needed (and rebuild the docker image)
