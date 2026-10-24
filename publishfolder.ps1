@@ -13,7 +13,7 @@ $Endpoint  = "[YOURSERVERHERE]/process-map" # Example: "https://curly-space-disc
 $AiChatLanguage = "English" # Pick one: English,Chinese,Deutsch,French,Norwegian,Portuguese,Romanian,Russian,Spanish,Swedish
 $ForceAiChatLanguage = $false # Actually "Apply" the language selection
 $DisableAiChat = $false # Stops AI chatting
-$Commander = 1 # 1 = Commander, 2 = Vs Vanilla, 3 = No Commander
+$Commander = 1 # 0 = No Commander, 1 = Commander, 2 = Vs Vanilla, 
 
 # Ensure source directory exists
 if (-not (Test-Path -Path $SourceDir)) {
