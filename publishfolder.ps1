@@ -14,7 +14,7 @@ $AiChatLanguage = "English" # Pick one: English,Chinese,Deutsch,French,Norwegian
 $ForceAiChatLanguage = $false # true = Actually "Apply" the language selection
 $DisableAiChat = $false # true = Stops AI chatting
 $Commander = 1 # 0 = No Commander, 1 = Commander, 2 = Vs Vanilla, 
-$Version = "REFORGED"
+$Version = "REFORGED" # REFORGED, TFT, ROC
 
 # Ensure source directory exists
 if (-not (Test-Path -Path $SourceDir)) {
