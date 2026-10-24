@@ -10,7 +10,7 @@ Wraps up AMAI into a Docker container to easily run in codepaces. Exposes a fron
 4. Set the forwarded port to public in the vscode web view.
 5. Access the URL.
 
-6. Alternatively look a the publishfolder.ps1 to mass submit a folder
+6. Alternatively look a the publishfolder.ps1 to mass submit a folder to the API
 
 
 ---
