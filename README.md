@@ -22,6 +22,7 @@ profiles.
 ## Run on Linux with Docker
 
 ```sh
+git submodule update --init --recursive
 docker build -t amai-web-app .
 docker run --rm -p 3000:3000 --name amai-container amai-web-app
 ```
@@ -43,6 +44,7 @@ process every map in the uploaded job directory.
 ## Rebuild and run
 
 ```sh
+git submodule update --init --recursive
 docker build --no-cache -t amai-web-app .
 docker run -d --rm -p 3000:3000 --name amai-container amai-web-app
 ```
