@@ -9,6 +9,18 @@ const uploadsDir = path.join(__dirname, "uploads");
 fs.mkdirSync(uploadsDir, { recursive: true });
 
 const upload = multer({ dest: uploadsDir });
+const supportedLanguages = new Set([
+  "Chinese",
+  "Deutsch",
+  "English",
+  "French",
+  "Norwegian",
+  "Portuguese",
+  "Romanian",
+  "Russian",
+  "Spanish",
+  "Swedish",
+]);
 
 app.use(express.static("public"));
 
@@ -37,6 +49,9 @@ app.post(
 
     const version = req.body.version || "REFORGED";
     const commanderMode = req.body.commander || "1";
+    const language = req.body.language || "English";
+    const forceLanguage = req.body.forceLanguage === "true";
+    const disableChat = req.body.disableChat === "true";
     if (!["ROC", "TFT", "REFORGED"].includes(version)) {
       uploadedFiles.forEach((file) => fs.rmSync(file.path, { force: true }));
       return res.status(400).send("Unsupported Warcraft III version.");
@@ -45,10 +60,23 @@ app.post(
       uploadedFiles.forEach((file) => fs.rmSync(file.path, { force: true }));
       return res.status(400).send("Unsupported commander mode.");
     }
+    if (!supportedLanguages.has(language)) {
+      uploadedFiles.forEach((file) => fs.rmSync(file.path, { force: true }));
+      return res.status(400).send("Unsupported AI chat language.");
+    }
+    if (
+      (req.body.forceLanguage !== undefined &&
+        req.body.forceLanguage !== "true") ||
+      (req.body.disableChat !== undefined && req.body.disableChat !== "true")
+    ) {
+      uploadedFiles.forEach((file) => fs.rmSync(file.path, { force: true }));
+      return res.status(400).send("Invalid AI chat setting.");
+    }
 
     const jobDir = fs.mkdtempSync(path.join(uploadsDir, "job_"));
     const mapPaths = [];
     const usedNames = new Set();
+    let installerDir;
 
     try {
       for (const file of uploadedFiles) {
@@ -71,6 +99,64 @@ app.post(
 
       const amaiDir = path.join(__dirname, "AMAI");
       const wineJobDir = `Z:${jobDir.replace(/\//g, "\\")}\\`;
+      const scriptsDir = path.join(amaiDir, "Scripts", `OPT${version}`);
+      const selectedVersion = `OPT${version}`;
+      const commonAiPath = path.join(scriptsDir, "common.ai");
+      const commanderScript = commanderMode === "2"
+        ? path.join(scriptsDir, "vsai", "Blizzard.j")
+        : path.join(scriptsDir, "Blizzard.j");
+
+      if (!fs.existsSync(scriptsDir)) {
+        throw new Error(`Compiled AMAI scripts are missing: ${scriptsDir}`);
+      }
+      installerDir = fs.mkdtempSync(path.join(uploadsDir, "installer_"));
+      fs.copyFileSync(path.join(amaiDir, "InstallToDir.pl"), path.join(installerDir, "InstallToDir.pl"));
+      fs.copyFileSync(path.join(amaiDir, "MPQEditor.exe"), path.join(installerDir, "MPQEditor.exe"));
+      fs.copyFileSync(path.join(amaiDir, "SFmpq.dll"), path.join(installerDir, "SFmpq.dll"));
+      fs.mkdirSync(path.join(installerDir, "Scripts"), { recursive: true });
+      fs.cpSync(scriptsDir, path.join(installerDir, "Scripts", selectedVersion), {
+        recursive: true,
+      });
+
+      if (disableChat) {
+        const commonAi = fs.readFileSync(commonAiPath, "utf8");
+        const chatSetting = /(^\s*set\s+chatting\s*=\s*)(true|false)(\s*$)/gm;
+        if ([...commonAi.matchAll(chatSetting)].length !== 1) {
+          throw new Error("Expected one chat initialization setting in common.ai.");
+        }
+        fs.writeFileSync(
+          path.join(installerDir, "Scripts", selectedVersion, "common.ai"),
+          commonAi.replace(chatSetting, "$1false$3"),
+          "utf8",
+        );
+      }
+
+      if (forceLanguage) {
+        const languageFiles = [
+          path.join(installerDir, "Scripts", selectedVersion, "common.ai"),
+          ...(commanderMode === "0"
+            ? []
+            : [path.join(
+                installerDir,
+                "Scripts",
+                selectedVersion,
+                path.relative(scriptsDir, commanderScript),
+              )]),
+        ];
+        for (const stagedPath of languageFiles) {
+          const data = fs.readFileSync(stagedPath, "utf8");
+          const languageDeclaration = /\bstring\s+language\s*=\s*"[^"]*"/;
+          if (!languageDeclaration.test(data)) {
+            throw new Error(`Language setting was not found in ${path.basename(stagedPath)}.`);
+          }
+          fs.writeFileSync(
+            stagedPath,
+            data.replace(languageDeclaration, `string language = "${language}"`),
+            "utf8",
+          );
+        }
+      }
+
       const winePrefix =
         process.env.WINEPREFIX ||
         path.join(process.env.HOME || "/root", ".wine");
@@ -84,7 +170,7 @@ app.post(
       const args = [
         "C:/strawberry/perl/bin/perl.exe",
         "InstallToDir.pl",
-        `OPT${version}`,
+        selectedVersion,
         wineJobDir,
         commanderMode,
       ];
@@ -94,6 +180,7 @@ app.post(
         WINEDEBUG: process.env.WINEDEBUG || "-all",
         WINEPATH: [
           process.env.WINEPATH,
+          `Z:${installerDir.replace(/\//g, "\\")}`,
           "C:\\strawberry\\perl\\bin",
         ]
           .filter(Boolean)
@@ -101,11 +188,11 @@ app.post(
         PATH: `${perlBin}:${process.env.PATH || ""}`,
       };
 
-      console.log(`Executing via Wine: wine ${args.join(" ")} in ${amaiDir}`);
+      console.log(`Executing via Wine: wine ${args.join(" ")} in ${installerDir}`);
       let output;
       try {
         output = execFileSync("wine", args, {
-          cwd: amaiDir,
+          cwd: installerDir,
           env,
           encoding: "utf8",
           stdio: ["ignore", "pipe", "pipe"],
@@ -146,6 +233,7 @@ app.post(
         }
         try {
           fs.rmSync(jobDir, { recursive: true, force: true });
+          fs.rmSync(installerDir, { recursive: true, force: true });
         } catch (cleanupErr) {
           console.error("Cleanup error:", cleanupErr);
         }
@@ -153,6 +241,9 @@ app.post(
     } catch (err) {
       console.error("AMAI processing error:", err.message);
       fs.rmSync(jobDir, { recursive: true, force: true });
+      if (installerDir) {
+        fs.rmSync(installerDir, { recursive: true, force: true });
+      }
       uploadedFiles.forEach((file) => fs.rmSync(file.path, { force: true }));
       return res.status(500).send(err.message);
     }

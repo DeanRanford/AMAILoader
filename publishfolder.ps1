@@ -9,7 +9,10 @@ Add-Type -AssemblyName System.Net.Http
 # --- Configuration ---
 $SourceDir = "\\VX420-G2v\Backups\wc3\BaseMaps"   # Folder containing your original maps (scanned recursively)
 $OutputDir = "\\VX420-G2v\Backups\wc3\Processed" # Folder where the processed map structure will be rebuilt
-$Endpoint  = "[YOURSERVERHERE]/process-map" # $Endpoint  = "https://curly-space-disco-qp4gjjr55q9f9jpw-3000.app.github.dev/process-map"
+$Endpoint  = "[YOURSERVERHERE]/process-map" # $Endpoint  = "https://curly-space-disco-qp4gjjr55q9f9jpw-3000.app.github.dev/process-mao
+$AiChatLanguage = "English"
+$ForceAiChatLanguage = $false
+$DisableAiChat = $false
 
 # Ensure source directory exists
 if (-not (Test-Path -Path $SourceDir)) {
@@ -47,6 +50,13 @@ foreach ($file in $mapFiles) {
         $form = New-Object System.Net.Http.MultipartFormDataContent
         $form.Add((New-Object System.Net.Http.StringContent("REFORGED")), "version")
         $form.Add((New-Object System.Net.Http.StringContent("1")), "commander")
+        $form.Add((New-Object System.Net.Http.StringContent($AiChatLanguage)), "language")
+        if ($ForceAiChatLanguage) {
+            $form.Add((New-Object System.Net.Http.StringContent("true")), "forceLanguage")
+        }
+        if ($DisableAiChat) {
+            $form.Add((New-Object System.Net.Http.StringContent("true")), "disableChat")
+        }
 
         # Attach map file
         $fileStream = [System.IO.File]::OpenRead($file.FullName)
