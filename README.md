@@ -5,7 +5,7 @@ Wraps up AMAI into a Docker container to easily run in codespaces. Exposes a fro
 
 Exposes an API endpoint to process a map.
 
-0. Open as a codespace
+0. Open as a codespace or Clone repo
 1. Update the git AMAI submodule to the latest version if needed (and rebuild the docker image)
 2. docker build --no-cache -t amai-web-app .
 3. docker run -d --rm -p 3000:3000 --name amai-container amai-web-app
