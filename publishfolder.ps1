@@ -11,8 +11,8 @@ $SourceDir = "\\VX420-G2v\Backups\wc3\BaseMaps"   # Folder containing your origi
 $OutputDir = "\\VX420-G2v\Backups\wc3\Processed" # Folder where the processed map structure will be rebuilt
 $Endpoint  = "[YOURSERVERHERE]/process-map" # Example: "https://curly-space-disco-qp4gjjr55q9f9jpw-3000.app.github.dev/process-map"
 $AiChatLanguage = "English" # Pick one: English,Chinese,Deutsch,French,Norwegian,Portuguese,Romanian,Russian,Spanish,Swedish
-$ForceAiChatLanguage = $false # Actually "Apply" the language selection
-$DisableAiChat = $false # Stops AI chatting
+$ForceAiChatLanguage = $false # true = Actually "Apply" the language selection
+$DisableAiChat = $false # true = Stops AI chatting
 $Commander = 1 # 0 = No Commander, 1 = Commander, 2 = Vs Vanilla, 
 
 # Ensure source directory exists
