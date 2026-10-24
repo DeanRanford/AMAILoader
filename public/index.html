@@ -74,6 +74,12 @@
         margin-top: 15px;
         color: #03dac6;
       }
+      #error {
+        display: none;
+        margin-top: 15px;
+        color: #cf6679;
+        overflow-wrap: anywhere;
+      }
     </style>
   </head>
   <body>
@@ -155,16 +161,52 @@
         Processing map(s) via Wine/AMAI... Please wait. Multiple maps download
         as a ZIP file.
       </div>
+      <div id="error" role="alert"></div>
     </div>
 
     <script>
       const form = document.getElementById("patchForm");
       const loading = document.getElementById("loading");
       const submitBtn = document.getElementById("submitBtn");
+      const errorMessage = document.getElementById("error");
 
-      form.addEventListener("submit", () => {
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
         submitBtn.style.display = "none";
         loading.style.display = "block";
+        errorMessage.style.display = "none";
+        errorMessage.textContent = "";
+
+        try {
+          const response = await fetch(form.action, {
+            method: form.method,
+            body: new FormData(form),
+          });
+
+          if (!response.ok) {
+            throw new Error(await response.text());
+          }
+
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          const downloadLink = document.createElement("a");
+          const disposition = response.headers.get("Content-Disposition") || "";
+          const filenameMatch = disposition.match(/filename="?([^";]+)"?/i);
+          downloadLink.href = url;
+          downloadLink.download = filenameMatch ? filenameMatch[1] : "AMAI_map";
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          downloadLink.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+          form.reset();
+        } catch (error) {
+          errorMessage.textContent = `Map processing failed: ${error.message}`;
+          errorMessage.style.display = "block";
+        } finally {
+          loading.style.display = "none";
+          submitBtn.style.display = "block";
+        }
       });
     </script>
   </body>
