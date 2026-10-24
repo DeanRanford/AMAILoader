@@ -9,7 +9,7 @@ Add-Type -AssemblyName System.Net.Http
 # --- Configuration ---
 $SourceDir = "\\VX420-G2v\Backups\wc3\BaseMaps"   # Folder containing your original maps (scanned recursively)
 $OutputDir = "\\VX420-G2v\Backups\wc3\Processed" # Folder where the processed map structure will be rebuilt
-$Endpoint  = "https://curly-space-disco-qp4gjjr55q9f9jpw-3000.app.github.dev/process-map"
+$Endpoint  = "[YOURSERVERHERE]/process-map" # $Endpoint  = "https://curly-space-disco-qp4gjjr55q9f9jpw-3000.app.github.dev/process-map"
 
 # Ensure source directory exists
 if (-not (Test-Path -Path $SourceDir)) {
