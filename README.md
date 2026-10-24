@@ -12,7 +12,7 @@ Exposes an API endpoint to process a map.
 4. Set the forwarded port to public in the vscode web view.
 5. Access the URL.
 
-6. Alternatively look a the publishfolder.ps1 to mass submit a folder to the API
+6. Alternatively look at the publishfolder.ps1 to mass submit a folder to the API
 
 
 ---
