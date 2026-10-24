@@ -9,10 +9,11 @@ Add-Type -AssemblyName System.Net.Http
 # --- Configuration ---
 $SourceDir = "\\VX420-G2v\Backups\wc3\BaseMaps"   # Folder containing your original maps (scanned recursively)
 $OutputDir = "\\VX420-G2v\Backups\wc3\Processed" # Folder where the processed map structure will be rebuilt
-$Endpoint  = "[YOURSERVERHERE]/process-map" # $Endpoint  = "https://curly-space-disco-qp4gjjr55q9f9jpw-3000.app.github.dev/process-mao
-$AiChatLanguage = "English"
-$ForceAiChatLanguage = $false
-$DisableAiChat = $false
+$Endpoint  = "[YOURSERVERHERE]/process-map" # Example: "https://curly-space-disco-qp4gjjr55q9f9jpw-3000.app.github.dev/process-mao
+$AiChatLanguage = "English" # Pick one: English,Chinese,Deutsch,French,Norwegian,Portuguese,Romanian,Russian,Spanish,Swedish
+$ForceAiChatLanguage = $false # Actually "Apply" the language selection
+$DisableAiChat = $false # Stops AI chatting
+$Commander = 1 # 1 = Commander, 2 = Vs Vanilla, 3 = No Commander
 
 # Ensure source directory exists
 if (-not (Test-Path -Path $SourceDir)) {
@@ -49,7 +50,7 @@ foreach ($file in $mapFiles) {
         # Create multipart form data content
         $form = New-Object System.Net.Http.MultipartFormDataContent
         $form.Add((New-Object System.Net.Http.StringContent("REFORGED")), "version")
-        $form.Add((New-Object System.Net.Http.StringContent("1")), "commander")
+        $form.Add((New-Object System.Net.Http.StringContent($Commander)), "commander")
         $form.Add((New-Object System.Net.Http.StringContent($AiChatLanguage)), "language")
         if ($ForceAiChatLanguage) {
             $form.Add((New-Object System.Net.Http.StringContent("true")), "forceLanguage")
