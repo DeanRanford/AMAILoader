@@ -14,6 +14,7 @@ $AiChatLanguage = "English" # Pick one: English,Chinese,Deutsch,French,Norwegian
 $ForceAiChatLanguage = $false # true = Actually "Apply" the language selection
 $DisableAiChat = $false # true = Stops AI chatting
 $Commander = 1 # 0 = No Commander, 1 = Commander, 2 = Vs Vanilla, 
+$Version = "REFORGED"
 
 # Ensure source directory exists
 if (-not (Test-Path -Path $SourceDir)) {
@@ -49,7 +50,7 @@ foreach ($file in $mapFiles) {
     try {
         # Create multipart form data content
         $form = New-Object System.Net.Http.MultipartFormDataContent
-        $form.Add((New-Object System.Net.Http.StringContent("REFORGED")), "version")
+        $form.Add((New-Object System.Net.Http.StringContent($Version)), "version")
         $form.Add((New-Object System.Net.Http.StringContent($Commander)), "commander")
         $form.Add((New-Object System.Net.Http.StringContent($AiChatLanguage)), "language")
         if ($ForceAiChatLanguage) {
